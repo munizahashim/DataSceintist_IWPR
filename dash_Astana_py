@@ -1,0 +1,58 @@
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+
+# Load the data from Excel
+data = pd.read_excel("C:/Users/UCA/Documents/summers 2023/IWPR internship/building/Final Project/Astana_data.xlsx")
+
+# Create a Dash application
+app = dash.Dash(__name__)
+
+# Set positions and dimensions for bars
+xpos = np.arange(len(data))
+ypos = data['No. of Buildings']
+zpos = np.zeros(len(data))
+dx = np.full(len(data), 0.8)  # Length of the bars (adjust this value to change the distance)
+dy = np.full(len(data), 1500)  # Width of the bars
+dz = data['No. of Floors']
+
+# Define a color map and normalize the number of floors to map to colors
+light_blue = 'rgb(0, 93, 138)'  # RGB format for light blue
+
+# Create the 3D bar chart using plotly.graph_objs
+bars = []
+for i, (x, y, z, h) in enumerate(zip(xpos, ypos, zpos, dz)):
+    intensity = np.linspace(0.2, 1, h)
+    for j in range(h):
+        if j >= 5:
+            blue_intensity = intensity[j]
+        else:
+            blue_intensity = 0
+        bar_color = f'rgba({int(255 * (1 - blue_intensity))}, {int(255 * (1 - blue_intensity))}, {int(255 * (1 - blue_intensity))}, 1.0)'
+        bars.append(go.Mesh3d(
+            x=[x, x, x+dx[i], x+dx[i], x],
+            y=[y, y+dy[i], y+dy[i], y, y],
+            z=[z+j, z+j, z+j, z+j, z+j+1],
+            opacity=1,
+            color=bar_color
+        ))
+
+# Define the layout of the dashboard
+app.layout = html.Div([
+    dcc.Graph(figure=go.Figure(data=bars, layout=go.Layout(
+        scene=dict(
+            xaxis_title='Astana',
+            yaxis_title='No. of Buildings',
+            zaxis_title='No. of Floors'
+        ),
+        scene_camera=dict(eye=dict(x=1.4, y=-1.4, z=0.5)),  # Adjust camera position for better view
+        title='Astana 3D Building Visualization',  # Set title for the figure
+    )))
+])
+
+# Run the app
+if __name__ == '__main__':
+    app.run_server(debug=True)

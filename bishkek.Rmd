@@ -1,0 +1,76 @@
+---
+title: "Bishkek"
+author: "Muniza"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```
+
+## Including Plots
+
+
+
+
+
+```{r}
+# Load required libraries
+library(readxl)
+library(plotly)
+
+# Load the data from Excel
+data <- read_excel("C:/Users/UCA/Documents/summers 2023/IWPR internship/building/Final Project/Bishkek_data.xlsx")
+
+# Set positions and dimensions for bars
+xpos <- seq_len(nrow(data))
+ypos <- data$`No. of Buildings`
+dz <- data$`No. of Floors`
+
+# Define a color map and normalize the number of floors to map to colors
+light_blue <- c(0, 93, 138)  # (R, G, B) for light blue
+color <- rgb(light_blue[1], light_blue[2], light_blue[3], maxColorValue = 255)  # Normalize RGB values to be in the range [0, 1]
+
+
+```
+
+
+```{r}
+# Create the 3D bar trace
+trace <- list(
+  type = "scatter3d",
+  x = xpos,
+  y = ypos,
+  z = rep(0, length(xpos)),
+  mode = "markers",
+  marker = list(
+    color = dz,
+    colorscale = list(
+      c(0, "white"),
+      c(5/max(dz), color),
+      c(1, color)
+    ),
+    cmin = 0,
+    cmax = max(dz),
+    size = 1000
+  )
+)
+
+# Create the layout for the 3D plot
+layout <- list(
+  title = "Bishkek",
+  scene = list(
+    xaxis = list(title = "Bishkek"),
+    yaxis = list(title = "No. of Buildings"),
+    zaxis = list(title = "No. of Floors")
+  )
+)
+
+# Create the Plotly figure
+fig <- plot_ly(data = trace, type = "scatter3d", mode = "markers", marker = marker, layout = layout)
+
+# Show the plot
+fig
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
